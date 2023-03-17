@@ -1,26 +1,45 @@
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React from "react";
 import Head from "next/head";
 import Header from "../components/Header";
+import { api } from "~/utils/api";
+import { signIn, signOut, useSession } from "next-auth/react";
+import { toast } from "react-toastify";
+import CharacterForm from "../components/CharacterForm";
 
 const AddCharacterPage: React.FC = () => {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [classValue, setClass] = useState("");
-  const [spec, setSpec] = useState("");
-  const [role, setRole] = useState("");
-  const [realm, setRealm] = useState("");
+  const { data: sessionData } = useSession();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // Replace the createCharacterMutation using useMutation from tRPC
+  const { mutate: createCharacter, error } = api.character.create.useMutation();
 
-    // Validate input and show error messages if needed
+  const handleFormSubmit = async (formData: {
+    name: string;
+    classValue: string;
+    spec: string;
+    role: string;
+    realm: string;
+  }) => {
+    console.log("handleFormSubmit called"); // Add this line
+    if (!sessionData?.user.id) {
+      toast.error("You must be logged in to add a character.");
+      return;
+    }
 
-    // Call your API to create a new character in the database
-    // You'll need to create an API route to handle this
+    console.log("Submitting form data:", formData);
 
-    // Redirect to the user's characters page after successful submission
-    router.push("/profile");
+    try {
+      await createCharacter({
+        ...formData,
+        userId: sessionData.user.id,
+      });
+
+      toast.success("Character created successfully!");
+    } catch (error) {
+      console.error("Error creating character:", error);
+      toast.error("Error creating character. Please try again.");
+    }
   };
 
   return (
@@ -36,74 +55,10 @@ const AddCharacterPage: React.FC = () => {
       <Header />
       <main className="flex min-h-screen flex-col items-center justify-center">
         <h1 className="mb-4 text-2xl">Add Character</h1>
-        <form onSubmit={handleSubmit} className="w-full max-w-sm">
-          <div className="mb-4">
-            <label htmlFor="name" className="block">
-              Character Name
-            </label>
-            <input
-              type="text"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="class" className="block">
-              Class
-            </label>
-            <input
-              type="text"
-              id="class"
-              value={classValue}
-              onChange={(e) => setClass(e.target.value)}
-              className="mt-1 block w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="spec" className="block">
-              Spec
-            </label>
-            <input
-              type="text"
-              id="spec"
-              value={spec}
-              onChange={(e) => setSpec(e.target.value)}
-              className="mt-1 block w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="role" className="block">
-              Role
-            </label>
-            <input
-              type="text"
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="mt-1 block w-full"
-            />
-          </div>
-          <div className="mb-4">
-            <label htmlFor="realm" className="block">
-              Realm
-            </label>
-            <input
-              type="text"
-              id="realm"
-              value={realm}
-              onChange={(e) => setRealm(e.target.value)}
-              className="mt-1 block w-full"
-            />
-          </div>
-          <button
-            type="submit"
-            className="rounded bg-blue-600 px-4 py-2 text-white"
-          >
-            Add Character
-          </button>
-        </form>
+        <CharacterForm onSubmit={handleFormSubmit} />
+        {error && (
+          <p className="error mt-2 text-red-500">Error: {error.message}</p>
+        )}
       </main>
     </>
   );
