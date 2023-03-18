@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useSession } from "next-auth/react";
 
 type CharacterFormProps = {
   onSubmit: (formData: {
@@ -17,9 +18,15 @@ const CharacterForm: React.FC<CharacterFormProps> = ({ onSubmit }) => {
   const [role, setRole] = useState("");
   const [realm, setRealm] = useState("");
 
+  const { data: session } = useSession();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit({ name, classValue, spec, role, realm });
+    if (session?.user) {
+      onSubmit({ name, classValue, spec, role, realm });
+    } else {
+      console.log("User is not authenticated");
+    }
   };
 
   return (

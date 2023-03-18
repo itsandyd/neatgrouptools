@@ -8,28 +8,27 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  name      String?
-  email     String?   @unique
-  image     String?
-  createdAt DateTime  @default(now())
+  id         String      @id @default(cuid())
+  name       String?
+  email      String?     @unique
+  image      String?
+  createdAt  DateTime    @default(now())
   characters Character[]
-  accounts  Account[]
-  sessions  Session[]
-  ledTeams  Team[]    @relation("TeamLeader")
+  accounts   Account[]
+  sessions   Session[]
+  ledTeams   Team[]      @relation("TeamLeader")
 }
 
-
 model Character {
-  id          String     @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   class       String
   spec        String
   role        String
   realm       String
-  user        User       @relation(fields: [userId], references: [id])
-  userId      String
-  createdAt   DateTime   @default(now())
+  user        User?     @relation(fields: [userId], references: [id])
+  userId      String?
+  createdAt   DateTime     @default(now())
   teamMembers TeamMember[]
 }
 
@@ -43,13 +42,13 @@ model TeamMember {
 }
 
 model Team {
-  id          String   @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
   type        TeamType
-  leader      User     @relation(name: "TeamLeader", fields: [leaderId], references: [id])
+  leader      User         @relation(name: "TeamLeader", fields: [leaderId], references: [id])
   leaderId    String
   teamMembers TeamMember[]
-  createdAt   DateTime @default(now())
+  createdAt   DateTime     @default(now())
 }
 
 enum TeamType {

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { Prisma } from "@prisma/client";
 
 export const characterRouter = createTRPCRouter({
   create: protectedProcedure
@@ -16,6 +17,7 @@ export const characterRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       // Change this line from .query to .mutation
       const { name, classValue, spec, role, realm, userId } = input;
+      console.log("Creating character with input:", input);
       const newCharacter = await ctx.prisma.character.create({
         data: {
           name,

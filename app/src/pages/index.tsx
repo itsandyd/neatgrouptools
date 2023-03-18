@@ -1,7 +1,9 @@
-import { NextPage } from "next";
+import type { NextPage } from "next";
 import Head from "next/head";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
+// Import the CharacterList component
+import { CharacterList } from "../components/CharacterList";
 
 const Home: NextPage = () => {
   return (
@@ -17,6 +19,8 @@ const Home: NextPage = () => {
       <Header />
       <main>
         <Hero />
+        {/* Add the CharacterList component */}
+        <CharacterList />
         {/* Your other main content */}
       </main>
     </>
